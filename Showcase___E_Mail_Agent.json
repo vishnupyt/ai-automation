@@ -1,0 +1,132 @@
+{
+  "name": "Showcase - E-Mail Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -140,
+        0
+      ],
+      "id": "272fe161-c9d6-4190-bd1c-fe9251df549e",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=message:\n{{ $json.message }}",
+        "options": {
+          "systemMessage": "=You are an email agent.\n\nYour job is to take in the 'message' and send the mail based on that.\n\nThe email should be friendly, and tailor the email based on the event and add emojis at the end."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        80,
+        0
+      ],
+      "id": "af52e6d6-6662-4fff-b6c1-65c0c9f11fab",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        20,
+        240
+      ],
+      "id": "be4638c6-5302-4bf8-a927-741126b533a8",
+      "name": "Draft E-Mail",
+      "credentials": {
+        "openAiApi": {
+          "id": "XasD8arNqxfUfYxM",
+          "name": "communicationbot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        380,
+        240
+      ],
+      "id": "48a8e24f-1674-4c93-b901-7957b2c9bd71",
+      "name": "Gmail",
+      "webhookId": "09855cc4-dced-4f10-83eb-3050d279e294"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft E-Mail": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a52b5d4f-beb2-4f16-932f-0832873ae472",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "486b3918d83345a21c3d5061a20fa8219700ba4ab2edaaa9cda56713faac1fef"
+  },
+  "id": "y7tdz3qh9abusvUj",
+  "tags": []
+}

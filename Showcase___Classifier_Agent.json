@@ -1,0 +1,219 @@
+{
+  "name": "Showcase - Classifier Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b8832659-d530-4bda-a789-3ad7140832c1",
+      "name": "Chat",
+      "webhookId": "edda538c-600d-4d6c-8976-18095c58757d"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        140,
+        240
+      ],
+      "id": "934b493b-258b-4739-9ee5-037e07ff3b83",
+      "name": "gpt 4.1",
+      "credentials": {
+        "openAiApi": {
+          "id": "XasD8arNqxfUfYxM",
+          "name": "communicationbot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are a personal assistant\n\nYou are an expert at determining which tool is best needed for the job and then passing user queries to those specific tools\n\nThe two tools you will have access to are:\n\ngoogle_calender_agent\n\nand\n\nemailing_agent\n\nThe user will be giving commands and asking questions about either their email or google calender. Your job is to pass two variables to each of those tools. The user query and a description of the task needing to be completed.\n\nYou are to create the description to clearly define what the user needs so the other agents can interpret the user better.\n\nI want these two systems to work with one another.\n\nFor example, if the user creates an event and wants to email someone about it, then you should coordinate the communication between the two agents."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "6502adee-e0e9-4674-80e7-270cb1085d92",
+      "name": "Classifier Agent"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool in order to do regarding Google Calender.",
+        "workflowId": {
+          "__rl": true,
+          "value": "1Kmb5AaAgW3TRR8u",
+          "mode": "list",
+          "cachedResultName": "Google Calender Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userQuery": "={{ $json.chatInput }}",
+            "jobDescription": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('jobDescription', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "userQuery",
+              "displayName": "userQuery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "jobDescription",
+              "displayName": "jobDescription",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        300,
+        240
+      ],
+      "id": "6c355433-df4f-4e1d-8490-bf146d8ee554",
+      "name": "google_calender_agent"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool when sending email",
+        "workflowId": {
+          "__rl": true,
+          "value": "VvhqGLZTz5oJ1dwR",
+          "mode": "list",
+          "cachedResultName": "E-Mail Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message": "={{ $json.chatInput }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        240
+      ],
+      "id": "81d2e4ec-d89f-47fe-9c0f-49b3792eb7be",
+      "name": "emailing_agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Classifier Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt 4.1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classifier Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "google_calender_agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Classifier Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "emailing_agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Classifier Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d9343684-c9c4-4930-8df0-5817e8b3a3a9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "486b3918d83345a21c3d5061a20fa8219700ba4ab2edaaa9cda56713faac1fef"
+  },
+  "id": "KuSt0fVSgvT9yYbT",
+  "tags": [
+    {
+      "createdAt": "2025-07-12T15:05:47.871Z",
+      "updatedAt": "2025-07-12T15:05:47.871Z",
+      "id": "SYw40AL6eaZZsFe6",
+      "name": "MAH"
+    },
+    {
+      "createdAt": "2025-07-07T14:05:49.136Z",
+      "updatedAt": "2025-07-07T14:05:49.136Z",
+      "id": "dxLCRBFTiNpbUIta",
+      "name": "AI Automation"
+    }
+  ]
+}
